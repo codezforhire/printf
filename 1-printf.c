@@ -13,44 +13,53 @@ int _printf(const char *format, ...)
 	{
 		if (*format != '%')
 		{
-			/*rint characters directly using write function*/
+			/*Print characters directly using write function*/
 			write(1, format, 1);
 			printed_chars++;
 		}
 		else
 		{
 			format++; /*Move past the '%'*/
-			if (*format == 'c')
+			char specifier = *format;
+
+			switch (specifier)
 			{
-				char c = va_arg(args, int);
-				write(1, &c, 1);
-				printed_chars++;
-			}
-			else if (*format == 's')
-			{
-				char *str = va_arg(args, char*);
-				while (*str)
-				{
-					write(1, str, 1);
-					printed_chars++;
-					str++;
-				}
-			}
-			else if (*format == '%')
-			{
-				write(1, format, 1);
-				printed_chars++;
-			}
-			else
-			{
-				write(1, "%", 1);
-				write(1, format, 1);
-				printed_chars += 2;
+				case 'c':
+					{
+						char c = va_arg(args, int);
+						write(1, &c, 1);
+						printed_chars++;
+						break;
+					}
+				case 's':
+					{
+						char *str = va_arg(args, char *);
+						while (*str)
+						{
+							write(1, str, 1);
+							printed_chars++;
+							str++;
+						}
+						break;
+					}
+				case '%':
+					{
+						write(1, "%", 1);
+						printed_chars++;
+						break;
+					}
+				default:
+					/*Print the invalid specifier as is*/
+					write(1, "%", 1);
+					write(1, &specifier, 1);
+					printed_chars += 2;
+					break;
 			}
 		}
 		format++;
 	}
 
 	va_end(args);
+
 	return printed_chars;
 }
