@@ -1,69 +1,60 @@
 #include "main.h"
-
-int _printf_helper(const char *format, va_list *ptr);
+#include <stdarg.h>
+#include <unistd.h>
 
 /**
- * _printf - Build out the printf function
- * @format: string passed with possible format specifiers
- *
- * Return: number of characters printed
+ * _printf - Printf function
+ * @format: format
+ * Return: Printed characters count
  */
 int _printf(const char *format, ...)
 {
-	va_list ptr;
+	int printed_chars = 0;
+	va_list args;
 
-	if (!format)
+	if (format == NULL)
 		return (-1);
-	va_start(ptr, format);
 
-	return (_printf_helper(format, &ptr));
-}
-
-/**
- * _printf_helper - prints formatted output to stdout
- * @format: A string containing zero or more format specifiers
- * @ptr: A pointer to a va_list of arguments to be printed
- *
- * Return: The number of characters printed on success, -1 on failure
- */
-int _printf_helper(const char *format, va_list *ptr)
-{
-	int (*print)(va_list *);
-	int count = 0;
+	va_start(args, format);
 
 	while (*format)
 	{
-		if (*format == '%')
+		if (*format != '%')
 		{
-			while (*(++format) == ' ')
-				;
-			if (*format == '%')
-			{
-				_putchar('%');
-				count++;
-			}
-			else
-			{
-				print = conversion(*format);
-				if (print == NULL)
-				{
-					if (!*format)
-						return (-1);
-					_putchar('%');
-					_putchar(*format);
-					count += 2;
-				}
-				else
-					count += print(ptr);
-			}
+			write(1, format, 1);
+			printed_chars++;
 		}
 		else
 		{
-			_putchar(*format);
-			count++;
+			format++;
+			if (*format == 'c')
+			{
+				char c = va_arg(args, int);
+				write(1, &c, 1);
+				printed_chars++;
+			}
+			else if (*format == 's')
+			{
+				char *s = va_arg(args, char *);
+				if (s == NULL)
+					s = "(null)";
+				while (*s)
+				{
+					write(1, s, 1);
+					s++;
+					printed_chars++;
+				}
+			}
+			else if (*format == '%')
+			{
+				write(1, "%", 1);
+				printed_chars++;
+			}
 		}
 		format++;
 	}
-	va_end(*ptr);
-	return (count);
+
+	va_end(args);
+
+	return printed_chars;
 }
