@@ -2,6 +2,12 @@
 #include <stdarg.h>
 #include <unistd.h>
 
+/**
+ * _printf - Custom printf function.
+ * @format: The format string.
+ *
+ * Return: Number of characters printed.
+ */
 int _printf(const char *format, ...)
 {
 	int printed_chars = 0;
@@ -11,55 +17,47 @@ int _printf(const char *format, ...)
 
 	while (*format)
 	{
-		if (*format != '%')
+		if (*format == '%')
 		{
-			/*Print characters directly using write function*/
-			write(1, format, 1);
-			printed_chars++;
+			format++; /* Move past the '%' */
+			if (*format == '\0')
+				break; /* Handle case where '%' is at the end */
+			if (*format == 'c')
+			{
+				/* Handle character specifier */
+				char c = va_arg(args, int);
+				write(1, &c, 1);
+				printed_chars++;
+			}
+			else if (*format == 's')
+			{
+				/* Handle string specifier */
+				char *s = va_arg(args, char *);
+				if (s == NULL)
+					s = "(null)";
+				while (*s)
+				{
+					write(1, s, 1);
+					s++;
+					printed_chars++;
+				}
+			}
+			else if (*format == '%')
+			{
+				/* Handle literal '%' */
+				write(1, "%", 1);
+				printed_chars++;
+			}
+			/* Add more cases for other specifiers if needed */
 		}
 		else
 		{
-			format++; /*Move past the '%'*/
-			char specifier = *format;
-
-			switch (specifier)
-			{
-				case 'c':
-					{
-						char c = va_arg(args, int);
-						write(1, &c, 1);
-						printed_chars++;
-						break;
-					}
-				case 's':
-					{
-						char *str = va_arg(args, char *);
-						while (*str)
-						{
-							write(1, str, 1);
-							printed_chars++;
-							str++;
-						}
-						break;
-					}
-				case '%':
-					{
-						write(1, "%", 1);
-						printed_chars++;
-						break;
-					}
-				default:
-					/*Print the invalid specifier as is*/
-					write(1, "%", 1);
-					write(1, &specifier, 1);
-					printed_chars += 2;
-					break;
-			}
+			write(1, format, 1); /* Print regular characters */
+			printed_chars++;
 		}
-		format++;
+		format++; /* Move to the next character */
 	}
 
 	va_end(args);
-
 	return printed_chars;
 }
