@@ -38,32 +38,38 @@ int _printf(const char *format, ...)
 			else if (*format == 'd' || *format == 'i')
 			{
 				int num = va_arg(args, int);
-				int temp = num;
-				int num_chars = 0;
 
+				/* Handle negative numbers */
 				if (num < 0) {
 					write(1, "-", 1);
 					printed_chars++;
 					num = -num;
 				}
 
-				/* Count the number of digits in the number */
-				do {
-					temp /= 10;
-					num_chars++;
-				} while (temp != 0);
+				/* Convert and print each digit */
+				if (num == 0) {
+					write(1, "0", 1);
+					printed_chars++;
+				} else {
+					int num_digits = 0;
+					int temp = num;
 
-				char num_str[num_chars + 1]; /* +1 for the null terminator */
-				num_str[num_chars] = '\0';
+					while (temp > 0) {
+						temp /= 10;
+						num_digits++;
+					}
 
-				/* Convert the integer to a string in reverse order */
-				for (int i = num_chars - 1; i >= 0; i--) {
-					num_str[i] = num % 10 + '0';
-					num /= 10;
+					char num_str[num_digits + 1];
+					num_str[num_digits] = '\0';
+
+					for (int i = num_digits - 1; i >= 0; i--) {
+						num_str[i] = num % 10 + '0';
+						num /= 10;
+					}
+
+					write(1, num_str, num_digits);
+					printed_chars += num_digits;
 				}
-
-				write(1, num_str, num_chars);
-				printed_chars += num_chars;
 			}
 			else if (*format == '%')
 			{
