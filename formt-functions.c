@@ -1,6 +1,46 @@
 #include "main.h"
 
 /**
+ * get_char - prints a single character to stdout
+ * @character: a pointer to the character to print
+ *
+ * Return: the number of characters printed (always 1)
+ */
+int get_char(va_list *character)
+{
+	_putchar(va_arg(*character, int));
+	return (1);
+}
+
+/**
+ * get_string - passes a string through
+ * @string: string to pass through
+ *
+ * Return: unmodified string
+ */
+int get_string(va_list *string)
+{
+	char *str;
+	int count;
+
+	str = va_arg(*string, char *);
+	count = 0;
+
+	if (str == NULL)
+		return (write(1, "(null)", 6));
+	while (str && str[count])
+	{
+		_putchar(str[count]);
+		count++;
+	}
+	return (count);
+}
+
+
+
+#include "main.h"
+
+/**
  * get_int - print integer to stdout
  * @arg: pointer to va_list contain integer argument
  *
